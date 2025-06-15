@@ -13,6 +13,10 @@
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
         }
         
+        html {
+            scroll-behavior: smooth;
+        }
+        
         body {
             background: linear-gradient(135deg, #ffeff5, #ffe6f0, #ffdae8);
             color: #5a3a5a;
@@ -501,9 +505,176 @@
                 columns: 1;
             }
         }
+
+        /* 音乐播放器样式 */
+        .music-player {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 101;
+            transition: all 0.3s ease;
+        }
+
+        .music-player:hover {
+            transform: scale(1.05);
+        }
+
+        .music-player-inner {
+            background: rgba(255, 255, 255, 0.8);
+            border-radius: 50px;
+            padding: 8px 15px;
+            box-shadow: 0 4px 20px rgba(230, 130, 170, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            backdrop-filter: blur(10px);
+        }
+
+        .music-toggle {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b9c, #e84393);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(232, 67, 147, 0.3);
+        }
+
+        .music-toggle:hover {
+            transform: scale(1.1);
+        }
+
+        .music-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            max-width: 200px;
+        }
+
+        .music-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #e84393;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        .music-progress {
+            height: 4px;
+            background: #ffbdd5;
+            border-radius: 2px;
+            flex: 1;
+            overflow: hidden;
+        }
+
+        .music-progress-bar {
+            height: 100%;
+            background: linear-gradient(45deg, #ff6b9c, #e84393);
+            width: 0%;
+            transition: width 0.1s linear;
+        }
+
+        /* 新增切歌按钮样式 */
+        .music-change-btn {
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b9c, #e84393);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 10px rgba(232, 67, 147, 0.3);
+        }
+
+        .music-change-btn:hover {
+            transform: scale(1.1);
+        }
+
+        /* 开始遮罩层 */
+        .start-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #ffdae8, #ffe6f0, #ffeff5);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            transition: opacity 0.5s ease;
+        }
+
+        .start-content {
+            text-align: center;
+            padding: 40px;
+            border-radius: 30px;
+            background: rgba(255, 255, 255, 0.8);
+            box-shadow: 0 15px 40px rgba(232, 67, 147, 0.3);
+            max-width: 600px;
+            margin: 20px;
+        }
+
+        .start-content h2 {
+            font-size: 48px;
+            margin-bottom: 20px;
+            background: linear-gradient(45deg, #e84393, #ff6b9c);
+            -webkit-background-clip: text;
+            background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .start-content p {
+            font-size: 20px;
+            margin-bottom: 40px;
+            color: #7a4a6a;
+        }
+
+        .start-btn {
+            padding: 18px 40px;
+            border-radius: 50px;
+            background: linear-gradient(45deg, #ff6b9c, #e84393);
+            color: white;
+            font-weight: 600;
+            font-size: 24px;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 8px 20px rgba(232, 67, 147, 0.3);
+        }
+
+        .start-btn:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 12px 25px rgba(232, 67, 147, 0.4);
+        }
+
+        .start-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 5px 15px rgba(232, 67, 147, 0.3);
+        }
     </style>
 </head>
 <body>
+    <!-- 开始遮罩层 -->
+    <div id="start-overlay" class="start-overlay">
+        <div class="start-content">
+            <h2>欢迎来到爱的世界</h2>
+            <p>点击开始，聆听爱的声音，开启美好回忆</p>
+            <button id="start-btn" class="start-btn">
+                <i class="fas fa-heart"></i> 开始 <i class="fas fa-heart"></i>
+            </button>
+        </div>
+    </div>
+
     <!-- 爱心背景 -->
     <div class="hearts" id="hearts"></div>
     
@@ -514,16 +685,41 @@
                 <div class="logo-text">yyt.我爱你</div>
             </div>
             <div class="nav-links">
-                <a href="#"><i class="fas fa-home"></i> 首页</a>
-                <a href="#"><i class="fas fa-heart"></i> 爱的故事</a>
-                <a href="#gallery"><i class="fas fa-images"></i> 美好回忆</a>
-                <a href="#"><i class="fas fa-envelope"></i> 爱的留言</a>
+                <a href="#hero-section"><i class="fas fa-home"></i> 首页</a>
+                <a href="#love-section"><i class="fas fa-heart"></i> 爱的故事</a>
+                <a href="#gallery-section"><i class="fas fa-images"></i> 美好回忆</a>
+                <a href="#footer"><i class="fas fa-envelope"></i> 爱的留言</a>
             </div>
         </nav>
     </header>
+
+    <!-- 音乐播放器 -->
+    <div class="music-player" id="music-player">
+        <div class="music-player-inner">
+            <div id="music-prev" class="music-change-btn">
+                <i class="fas fa-step-backward"></i>
+            </div>
+            <div id="music-toggle" class="music-toggle">
+                <i class="fas fa-play"></i>
+            </div>
+            <div id="music-next" class="music-change-btn">
+                <i class="fas fa-step-forward"></i>
+            </div>
+            <div class="music-info" id="music-info">
+                <div id="music-title" class="music-title">《爱的协奏曲》</div>
+                <div class="music-progress">
+                    <div id="music-progress-bar" class="music-progress-bar"></div>
+                </div>
+            </div>
+        </div>
+        <audio id="music">
+            <source src="music1.mp3" type="audio/mpeg">
+            <source src="music2.mp3" type="audio/mpeg">
+        </audio>
+    </div>
     
     <div class="container">
-        <section class="hero">
+        <section id="hero-section" class="hero">
             <div class="hero-content">
                 <h1>致我最爱的 yyt</h1>
                 <p>在这个浩瀚的宇宙中，遇见你是最美好的奇迹。你的每一个微笑都让我的心跳加速，你的每一句话都深深烙印在我的灵魂深处。无论世界如何变化，我对你的爱永不变。</p>
@@ -546,7 +742,7 @@
             </div>
         </section>
         
-        <section class="love-section">
+        <section id="love-section" class="love-section">
             <h2><i class="fas fa-heart"></i> 爱的表白 <i class="fas fa-heart"></i></h2>
             
             <div class="love-messages">
@@ -571,20 +767,19 @@
         </section>
         
         <!-- 新增图片展示区域 -->
-        <section class="gallery-section" id="gallery">
-            <h2><i class="fas fa-camera"></i> 镁嚎回忆 <i class="fas fa-heart"></i></h2>
+        <section id="gallery-section" class="gallery-section">
+            <h2><i class="fas fa-camera"></i> 美好回忆 <i class="fas fa-heart"></i></h2>
             
             <div class="gallery-controls">
                 <button class="gallery-btn active" data-filter="all">全部</button>
-                <!-- button class="gallery-btn" data-filter="travel">旅行</button -->
-                <button class="gallery-btn" data-filter="photo">大头照</button>
+                <button class="gallery-btn" data-filter="meme">表情包</button>
                 <button class="gallery-btn" data-filter="chat">聊天记录</button>
                 <button class="gallery-btn" data-filter="milk_dragon">奶龙</button>
             </div>
             
             <div class="gallery-container">
-                <div class="gallery-item" data-category="milk_dragon">  
-                    <img src="pics/奶龙.jpg" alt="奶龙">
+                <div class="gallery-item" data-category="milk_dragon">  
+                    <img src="https://vip.123pan.cn/1812465669/yk6baz03t0l000d7w33fgc186pptni3cDIYPDqFzAIQzBGxvDwaPAO==.jpg" alt="奶龙">
                     <div class="gallery-caption">
                         <h3>奶龙</h3>
                         <p>我是奶龙！☺️虽然和yyt没什么关系，但是摆在这毫无违和感（x</p>
@@ -592,7 +787,7 @@
                 </div>
                 
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/不许td.jpg" alt="不许td">
+                    <img src="https://vip.123pan.cn/1812465669/ymjew503t0n000d7w32y6i6npfkf7trlDIYPDqFzAIQzBGxvDwaPAO==.jpg" alt="不许td">
                     <div class="gallery-caption">
                         <h3>不许td</h3>
                         <p>就要td😈😈😈</p>
@@ -600,7 +795,7 @@
                 </div>
                 
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/下片.jpg" alt="片有点大">
+                    <img src="https://vip.123pan.cn/1812465669/yk6baz03t0n000d7w33h281rzel2exrxDIYPDqFzAIQzBGxvDwaPAO==.jpg" alt="片有点大">
                     <div class="gallery-caption">
                         <h3>片有点大</h3>
                         <p>有点害怕，不做评价</p>
@@ -608,7 +803,7 @@
                 </div>
                 
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/PornHub.jpg" alt="pornhub">
+                    <img src="https://vip.123pan.cn/1812465669/ymjew503t0m000d7w32xrorndt4su7t2DIYPDqFzAIQzBGxvDwaPAO==.jpg" alt="pornhub">
                     <div class="gallery-caption">
                         <h3>pornhub</h3>
                         <p>传出去，minebbs是PornHub</p>
@@ -616,7 +811,7 @@
                 </div>
                 
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/女厕所.jpg" alt="进女厕所">
+                    <img src="https://vip.123pan.cn/1812465669/ymjew503t0l000d7w32x99ome2p6g6nvDIYPDqFzAIQzBGxvDwaPAO==.jpg" alt="进女厕所">
                     <div class="gallery-caption">
                         <h3>进女厕所</h3>
                         <p>截图真实性存疑</p>
@@ -624,31 +819,78 @@
                 </div>
 
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/我都没急.png" alt="我都没急">
+                    <img src="https://vip.123pan.cn/1812465669/yk6baz03t0m000d7w33g9nmrfo5g2li2DIYPDqFzAIQzBGxvDwaPAO==.png" alt="我都没急">
                     <div class="gallery-caption">
                         <h3>我都没急</h3>
                         <p>qwq</p>
                     </div>
                 </div>
                 <div class="gallery-item" data-category="chat">
-                    <img src="pics/PHP.png" alt="php">
+                    <img src="https://vip.123pan.cn/1812465669/yk6baz03t0m000d7w33g9nmqi15g1q98DIYPDqFzAIQzBGxvDwaPAO==.png" alt="php">
                     <div class="gallery-caption">
                         <h3>PHP</h3>
                         <p>震惊！yyt质疑世界上最好的语言！</p>
                     </div>
                 </div>
-                <div class="gallery-item" data-category="photo">
-                    <img src="https://www.minebbs.com/data/avatars/o/0/1.jpg?1741444560" alt="咖啡时光">
+                <div class="gallery-item" data-category="meme">
+                    <img src="https://www.minebbs.com/data/avatars/o/0/1.jpg?1741444560" alt="yyt头像">
                     <div class="gallery-caption">
                         <h3>yyt头像</h3>
                         <p>可爱捏</p>
+                    </div>
+                </div>
+                <div class="gallery-item" data-category="meme">
+                    <img src="pics/Minebbs启动.jpeg" alt="MineBBS启动！">
+                    <div class="gallery-caption">
+                        <h3>MineBBS启动！</h3>
+                        <p>原来你也万冤伸（大雾</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="chat">
+                    <img src="pics/柚子厨.png" alt="柚子厨蒸鹅心">
+                    <div class="gallery-caption">
+                        <h3>柚子厨蒸鹅心</h3>
+                        <p>Ciallo～(∠・ω&lt; )⌒★（记住这张图，以后要考）</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="chat">
+                    <img src="pics/川建国.png" alt="川建国YYT">
+                    <div class="gallery-caption">
+                        <h3>川建国YYT</h3>
+                        <p>Make Minebbs Great Again!</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="meme">
+                    <img src="pics/看片.jpeg" alt="看片神器">
+                    <div class="gallery-caption">  
+                        <h3>看片神器</h3>
+                        <p>承上不启下，呼应上文某聊天记录，好像没什么下文能引出（</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="meme">
+                    <img src="pics/寻狗启示.jpeg" alt="寻狗启示">
+                    <div class="gallery-caption">
+                        <h3>寻狗启示</h3>
+                        <p>YYT 是我的狗（雾）</p>
+                    </div>
+                </div>
+
+                <div class="gallery-item" data-category="chat">
+                    <img src="pics/柚子厨蒸鹅心.jpeg" alt="柚子厨蒸鹅心×2">
+                    <div class="gallery-caption">  
+                        <h3>柚子厨蒸鹅心×2</h3>
+                        <p>猜猜是谁刚发了 Ciallo :)</p>
                     </div>
                 </div>
             </div>
         </section>
     </div>
     
-    <footer>
+    <footer id="footer">
         <div class="social-links">
             <a href="https://www.yyt.cool/" target="_blank"><i class="fas fa-home"></i></a>
             <a href="https://github.com/SuperYYT" target="_blank"><i class="fab fa-github"></i></a>
@@ -659,10 +901,20 @@
         <div class="copyright">
             <p>❤️ 用我的心，写满对你的爱 ❤️</p>
             <p>© 2025 yyt.我爱你 - 永恒的爱意</p>
+            <p>© 2025 神人TV. 保留所有权利。</p>
         </div>
     </footer>
     
     <script>
+        // 音乐配置 - 可自定义歌曲名称
+        const musicConfig = {
+            songs: [
+                { src: "https://dlink.host/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvYy84MmFiNDg5ODc0Y2Q3Njg0L0VlRHNxVU5XMDROT2s2alpXSXpXaXFjQjA1MkFzSFhTcC1jbnloTlRNUWtvUlE_ZT1JTmdCdkE.mp3", title: "米津玄師 - Lemon" },
+                { src: "https://dlink.host/1drv/aHR0cHM6Ly8xZHJ2Lm1zL3UvYy84MmFiNDg5ODc0Y2Q3Njg0L0VSdkZScVNRSHRaT3NHdnNmQTliZ1U0Qnk3V2NpUUE4LTkzeDdxQndZQ1R6Nmc_ZT1FUTRMRXA.mp3", title: "米津玄師 - 打上花火" },
+            ],
+            currentSongIndex: 0
+        };
+
         // 创建爱心雨效果
         function createHearts() {
             const heartsContainer = document.getElementById('hearts');
@@ -690,7 +942,7 @@
         
         // 图片筛选功能
         function setupGalleryFilter() {
-            const filterBtns = document.querySelectorAll('.gallery-btn');  
+            const filterBtns = document.querySelectorAll('.gallery-btn');  
             const galleryItems = document.querySelectorAll('.gallery-item');
             
             filterBtns.forEach(btn => {
@@ -712,11 +964,93 @@
                 });
             });
         }
+
+        // 音乐播放器功能
+        const audio = document.getElementById('music');
+        const musicToggle = document.getElementById('music-toggle');
+        const musicTitle = document.getElementById('music-title');
+        const musicProgressBar = document.getElementById('music-progress-bar');
+        const startOverlay = document.getElementById('start-overlay');
+        const startBtn = document.getElementById('start-btn');
+        const musicPrev = document.getElementById('music-prev');
+        const musicNext = document.getElementById('music-next');
         
+        // 更新音乐信息
+        function updateMusicInfo() {
+            const currentSong = musicConfig.songs[musicConfig.currentSongIndex];
+            musicTitle.textContent = currentSong.title;
+            audio.src = currentSong.src;
+        }
+
+        // 切换播放状态
+        function togglePlay() {
+            if (audio.paused) {
+                audio.play();
+                musicToggle.innerHTML = '<i class="fas fa-pause"></i>';
+            } else {
+                audio.pause();
+                musicToggle.innerHTML = '<i class="fas fa-play"></i>';
+            }
+        }
+
+        // 更新进度条
+        function updateProgress() {
+            if (audio.duration) {
+                const percent = (audio.currentTime / audio.duration) * 100;
+                musicProgressBar.style.width = `${percent}%`;
+            }
+        }
+
+        // 开始按钮点击事件
+        startBtn.addEventListener('click', () => {
+            // 播放音乐
+            updateMusicInfo();
+            audio.play().then(() => {
+                // 音乐成功播放后隐藏遮罩层
+                startOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    startOverlay.style.display = 'none';
+                }, 500);
+                musicToggle.innerHTML = '<i class="fas fa-pause"></i>';
+            }).catch(error => {
+                console.error('播放失败:', error);
+                // 播放失败时也隐藏遮罩层
+                startOverlay.style.opacity = '0';
+                setTimeout(() => {
+                    startOverlay.style.display = 'none';
+                }, 500);
+            });
+        });
+
+        // 音乐播放完毕自动切换到下一首
+        audio.addEventListener('ended', () => {
+            musicConfig.currentSongIndex = (musicConfig.currentSongIndex + 1) % musicConfig.songs.length;
+            updateMusicInfo();
+            audio.play();
+        });
+
+        // 上一首按钮点击事件
+        musicPrev.addEventListener('click', () => {
+            musicConfig.currentSongIndex = (musicConfig.currentSongIndex - 1 + musicConfig.songs.length) % musicConfig.songs.length;
+            updateMusicInfo();
+            audio.play();
+        });
+
+        // 下一首按钮点击事件
+        musicNext.addEventListener('click', () => {
+            musicConfig.currentSongIndex = (musicConfig.currentSongIndex + 1) % musicConfig.songs.length;
+            updateMusicInfo();
+            audio.play();
+        });
+
         // 页面加载完成后执行
         window.addEventListener('load', () => {
             createHearts();
             setupGalleryFilter();
+            
+            // 音乐播放器事件监听
+            musicToggle.addEventListener('click', togglePlay);
+            audio.addEventListener('timeupdate', updateProgress);
             
             // 添加头像悬停效果
             const avatar = document.querySelector('.avatar');
